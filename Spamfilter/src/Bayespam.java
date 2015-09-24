@@ -1,6 +1,18 @@
 import java.io.*;
 import java.util.*;
 
+//TODO leestekens
+//TODO getallen
+//TODO Alles naar lowercase
+//TODO Woorden met minder dan 4 letters verwijderen
+
+///Counts amount of messages of the input.
+public void priorProbability(int counter_regular, int counter_spam){
+
+        System.out.print(counter_regular);
+        System.out.print(counter_spam);
+        }
+
 public class Bayespam
 {
     // This defines the two types of messages we have.
@@ -24,6 +36,7 @@ public class Bayespam
                 ++counter_spam;
             }
         }
+        priorProbability(counter_regular, counter_spam);
     }
 
     // Listings of the two subdirectories (regular/ and spam/)
@@ -78,8 +91,8 @@ public class Bayespam
             word = e.nextElement();
             counter  = vocab.get(word);
             
-            System.out.println( word + " | in regular: " + counter.counter_regular + 
-                                " in spam: "    + counter.counter_spam);
+            System.out.println(word + " | in regular: " + counter.counter_regular +
+                    " in spam: " + counter.counter_spam);
         }
     }
 
@@ -109,6 +122,7 @@ public class Bayespam
         
                 while (st.hasMoreTokens())                  // while there are stille words left..
                 {
+                    //st.nextToken() =
                     addWord(st.nextToken(), type);                  // add them to the vocabulary
                 }
             }
@@ -116,6 +130,7 @@ public class Bayespam
             in.close();
         }
     }
+
    
     public static void main(String[] args)
     throws IOException
@@ -142,7 +157,7 @@ public class Bayespam
         
         // Now all students must continue from here:
         //
-        // 1) A priori class probabilities must be computed from the number of regular and spam messages
+        // 1) A priori class probabilities must be computed from the number of regular and spam messages /// Aantal messages tellen van de inputs
         // 2) The vocabulary must be clean: punctuation and digits must be removed, case insensitive
         // 3) Conditional probabilities must be computed for every word
         // 4) A priori probabilities must be computed for every word
