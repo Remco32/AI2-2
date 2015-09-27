@@ -40,6 +40,8 @@ public class Bayespam
         ///Remove numerals
 
         ///Set everything to lowercase
+
+        return word;
     }
 
     // This a class with two counters (for regular and for spam)
@@ -140,11 +142,11 @@ public class Bayespam
             {
                 StringTokenizer st = new StringTokenizer(line);         // parse it into words
         
-                while (st.hasMoreTokens())                  // while there are stille words left..
+                while (st.hasMoreTokens())                  // while there are still words left..
                 {
                     //st.nextToken() =
 
-                    if(moreThanThreeLetters(st.nextToken())) { /// More than 3 letters?
+                    if(moreThanThreeLetters(st.nextToken())) { /// More than 3 letters? //TODO This if-statement makes it look outside of the StringTokenizer somehow.
                     addWord(st.nextToken(), type);// add them to the vocabulary
                 }
                 }
