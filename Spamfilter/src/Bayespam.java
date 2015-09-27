@@ -1,11 +1,8 @@
 import java.io.*;
 import java.util.*;
 
-//TODO leestekens
-//TODO getallen
-//TODO Alles naar lowercase
-//TODO Woorden met minder dan 4 letters verwijderen
-
+//TODO spaties verwijderen
+//TODO numerals
 
 
 public class Bayespam
@@ -35,13 +32,8 @@ public class Bayespam
 
     ///Removes punctuation, numerals, all chars to lowercase
     public static String formatter(String word){
-        ///Remove punctuation
-
-        ///Remove numerals
-
-        ///Set everything to lowercase
-
-        return word;
+        ///Remove any non-alphabet character
+        return word.replaceAll("[^a-zA-Z ]", "").toLowerCase();
     }
 
     // This a class with two counters (for regular and for spam)
@@ -72,6 +64,9 @@ public class Bayespam
     private static void addWord(String word, MessageType type)
     {
         Multiple_Counter counter = new Multiple_Counter();
+        if(word.length() < 4){ //TODO check
+            return;
+        }
         word = formatter(word);
 
         if ( vocab.containsKey(word) ){                  // if word exists already in the vocabulary..
@@ -148,7 +143,7 @@ public class Bayespam
                     final String next = st.nextToken();
                     //st.nextToken() =
 
-                    if(moreThanThreeLetters(next)) { /// More than 3 letters?
+                    if(moreThanThreeLetters(next)) { /// More than 3 letters? //TODO still doesn't work
                     addWord(next, type);// add them to the vocabulary
                 }
                 }
