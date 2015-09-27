@@ -21,6 +21,27 @@ public class Bayespam
         System.out.print(listing_regular);
     }
 
+    ///Check for words with more than 3 letters.
+    public static boolean moreThanThreeLetters(String word){
+        boolean bool;
+        if(word.length() > 3){
+            bool = true;
+        }
+        else{
+            bool = false;
+        }
+        return bool;
+        }
+
+    ///Removes punctuation, numerals, all chars to lowercase
+    public static String formatter(String word){
+        ///Remove punctuation
+
+        ///Remove numerals
+
+        ///Set everything to lowercase
+    }
+
     // This a class with two counters (for regular and for spam)
     static class Multiple_Counter
     {
@@ -49,6 +70,7 @@ public class Bayespam
     private static void addWord(String word, MessageType type)
     {
         Multiple_Counter counter = new Multiple_Counter();
+        word = formatter(word);
 
         if ( vocab.containsKey(word) ){                  // if word exists already in the vocabulary..
             counter = vocab.get(word);                  // get the counter from the hashtable
@@ -121,7 +143,10 @@ public class Bayespam
                 while (st.hasMoreTokens())                  // while there are stille words left..
                 {
                     //st.nextToken() =
-                    addWord(st.nextToken(), type);                  // add them to the vocabulary
+
+                    if(moreThanThreeLetters(st.nextToken())) { /// More than 3 letters?
+                    addWord(st.nextToken(), type);// add them to the vocabulary
+                }
                 }
             }
 
@@ -152,7 +177,7 @@ public class Bayespam
         readMessages(MessageType.SPAM);
 
         ///
-        priorProbability();
+        ///priorProbability();
 
         // Print out the hash table
         printVocab();
