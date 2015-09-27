@@ -6,12 +6,7 @@ import java.util.*;
 //TODO Alles naar lowercase
 //TODO Woorden met minder dan 4 letters verwijderen
 
-///Counts amount of messages of the input.
-public void priorProbability(int counter_regular, int counter_spam){
 
-        System.out.print(counter_regular);
-        System.out.print(counter_spam);
-        }
 
 public class Bayespam
 {
@@ -21,6 +16,11 @@ public class Bayespam
         NORMAL, SPAM
     }
 
+    ///Counts amount of messages of the input.
+    public static void priorProbability(){
+        System.out.print(listing_regular);
+    }
+
     // This a class with two counters (for regular and for spam)
     static class Multiple_Counter
     {
@@ -28,15 +28,13 @@ public class Bayespam
         int counter_regular = 0;
 
         // Increase one of the counters by one
-        public void incrementCounter(MessageType type)
-        {
-            if ( type == MessageType.NORMAL ){
+        public void incrementCounter(MessageType type) {
+            if (type == MessageType.NORMAL) {
                 ++counter_regular;
             } else {
                 ++counter_spam;
             }
         }
-        priorProbability(counter_regular, counter_spam);
     }
 
     // Listings of the two subdirectories (regular/ and spam/)
@@ -131,6 +129,7 @@ public class Bayespam
         }
     }
 
+
    
     public static void main(String[] args)
     throws IOException
@@ -151,6 +150,9 @@ public class Bayespam
         // Read the e-mail messages
         readMessages(MessageType.NORMAL);
         readMessages(MessageType.SPAM);
+
+        ///
+        priorProbability();
 
         // Print out the hash table
         printVocab();
