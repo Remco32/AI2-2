@@ -144,10 +144,12 @@ public class Bayespam
         
                 while (st.hasMoreTokens())                  // while there are still words left..
                 {
+
+                    final String next = st.nextToken();
                     //st.nextToken() =
 
-                    if(moreThanThreeLetters(st.nextToken())) { /// More than 3 letters? //TODO This if-statement makes it look outside of the StringTokenizer somehow.
-                    addWord(st.nextToken(), type);// add them to the vocabulary
+                    if(moreThanThreeLetters(next)) { /// More than 3 letters?
+                    addWord(next, type);// add them to the vocabulary
                 }
                 }
             }
