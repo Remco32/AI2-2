@@ -66,7 +66,7 @@ public class Bayespam {
 
         for (int i = 0; i < messages.length; ++i)
         {
-            FileInputStream i_s = new FileInputStream( messages[1] );
+            FileInputStream i_s = new FileInputStream( messages[1] ); ///always the same msg
             BufferedReader in = new BufferedReader(new InputStreamReader(i_s));
             String line;
             String word;
@@ -90,6 +90,46 @@ public class Bayespam {
             in.close();
         }
         return logPregularmsg;
+    }
+
+    ///TODO give message as input
+    ///Calculates the probability of a message being a regular email
+    public static double probabilitySpam()
+            throws IOException{
+        File[] messages = new File[0];
+        Multiple_Counter counter = new Multiple_Counter();
+
+        ///TODO Calculate actual alpha value
+        double alpha = 0.01;
+        ///Initialize as alpha and prior prob
+        double logPspammsg = alpha + priorProbability(MessageType.SPAM);;
+
+        for (int i = 0; i < messages.length; ++i)
+        {
+            FileInputStream i_s = new FileInputStream( messages[1] ); ///always the same msg
+            BufferedReader in = new BufferedReader(new InputStreamReader(i_s));
+            String line;
+            String word;
+
+            while ((line = in.readLine()) != null)                      // read a line
+            {
+                StringTokenizer st = new StringTokenizer(line);         // parse it into words
+
+                while (st.hasMoreTokens())                  // while there are still words left..
+                {
+
+                    final String next = st.nextToken();
+
+                    ///probability is the sum of alpha + prior probability of regular message + sum of probability of word being regular
+                    ///So we now add the probability of each word at every step
+                    counter = vocab.get(next);
+                    double pWord = counter.conditionalprob_spam;
+                    logPspammsg += pWord;
+                }
+            }
+            in.close();
+        }
+        return logPspammsg;
     }
 
     
@@ -298,7 +338,8 @@ public class Bayespam {
         System.out.println(" a nWordsSpam: " + nWordsSpam);
         System.out.println(" a nWordsRegular : " + nWordsRegular);
 
-        System.out.println("probabilityRegular : " + probabilityRegular());
+        System.out.println("probabilityRegular of message 1 : " + probabilityRegular());
+        System.out.println("probabilitySpam of message 1 : " + probabilitySpam());
 
         // Now all students must continue from here:
 
