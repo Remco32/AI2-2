@@ -52,8 +52,9 @@ public class Bayespam {
         
     }
 
+    ///TODO give message as input
     ///Calculates the probability of a message being a regular email
-    public void probabilityRegular()
+    public double probabilityRegular()
             throws IOException{
         File[] messages = new File[0];
         Multiple_Counter counter = new Multiple_Counter();
@@ -65,7 +66,7 @@ public class Bayespam {
 
         for (int i = 0; i < messages.length; ++i)
         {
-            FileInputStream i_s = new FileInputStream( messages[i] );
+            FileInputStream i_s = new FileInputStream( messages[1] );
             BufferedReader in = new BufferedReader(new InputStreamReader(i_s));
             String line;
             String word;
@@ -84,11 +85,11 @@ public class Bayespam {
                     counter = vocab.get(next);
                     double pWord = counter.conditionalprob_regular;
                     logPregularmsg += pWord;
-
                 }
             }
             in.close();
         }
+        return logPregularmsg;
     }
 
     
@@ -290,13 +291,15 @@ public class Bayespam {
         printVocab();
 
         
-        System.out.println("total Regular: "  +  nMessagesRegular);  
+        System.out.println("total Regular: " + nMessagesRegular);
         System.out.println("total Spam : " + nMessagesSpam ); 
         System.out.println(" a priori spam : " + prior_spam);
         System.out.println(" a priori regular : " + prior_regular);  
         System.out.println(" a nWordsSpam: " + nWordsSpam);
         System.out.println(" a nWordsRegular : " + nWordsRegular);
-        
+
+        System.out.println("probabilityRegular : " + probabilityRegular());
+
         // Now all students must continue from here:
 
         // 6) Bayes rule must be applied on new messages, followed by argmax classification
