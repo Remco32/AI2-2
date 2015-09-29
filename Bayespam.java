@@ -10,18 +10,6 @@ public class Bayespam {
     }
 
 
-    ///Check for words with more than 3 letters.
-    public static boolean moreThanThreeLetters(String word){
-        boolean bool;
-        if(word.length() > 3){
-            bool = true;
-        }
-        else{
-            bool = false;
-        }
-        return bool;
-        }
-
     ///Removes punctuation, numerals, all chars to lowercase
     public static String formatter(String word){
         ///Remove any non-alphabet character
@@ -92,7 +80,8 @@ public class Bayespam {
     private static void addWord(String word, MessageType type)
     {
         Multiple_Counter counter = new Multiple_Counter();
-        if(word.length() < 4){ //TODO check
+        ///Check if word is too short, less than 4 chars.
+        if(word.length() < 4){ //TODO Slips through single letter words and words that were reformatted.
             return;
         }
         word = formatter(word);
@@ -208,31 +197,29 @@ public class Bayespam {
                     final String next = st.nextToken();
                     //st.nextToken() =
 
-                    if(moreThanThreeLetters(next)) { /// More than 3 letters? //TODO still doesn't work
                     addWord(next, type);// add them to the vocabulary
-                   
+
                 }
-                }
-                
+
             }
-             
+
             in.close();
         }
             }
 
 
-   
+
     public static void main(String[] args)
- 
+
     throws IOException
-    {    
-    	
+    {
+
         double prior_spam = 0;
         double prior_regular = 0;
-        
+
         // Location of the directory (the path) taken from the cmd line (first arg)
         File dir_location = new File( args[0] );
-     
+
 
         // Check if the cmd line arg is a directory
         if ( !dir_location.isDirectory() )
@@ -247,8 +234,8 @@ public class Bayespam {
         // Read the e-mail messages
        readMessages(MessageType.NORMAL);
        readMessages(MessageType.SPAM);
-       
-       
+
+
        prior_spam = priorProbability(MessageType.SPAM);
        prior_regular = priorProbability(MessageType.NORMAL);
        float nMessagesRegular =listing_regular.length;
