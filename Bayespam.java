@@ -51,6 +51,46 @@ public class Bayespam {
         
         
     }
+
+    ///Calculates the probability of a message being a regular email
+    public void probabilityRegular()
+            throws IOException{
+        File[] messages = new File[0];
+        Multiple_Counter counter = new Multiple_Counter();
+
+        ///TODO Calculate actual alpha value
+        double alpha = 0.01;
+        ///Initialize as alpha and prior prob
+        double logPregularmsg = alpha + priorProbability(MessageType.NORMAL);;
+
+        for (int i = 0; i < messages.length; ++i)
+        {
+            FileInputStream i_s = new FileInputStream( messages[i] );
+            BufferedReader in = new BufferedReader(new InputStreamReader(i_s));
+            String line;
+            String word;
+
+            while ((line = in.readLine()) != null)                      // read a line
+            {
+                StringTokenizer st = new StringTokenizer(line);         // parse it into words
+
+                while (st.hasMoreTokens())                  // while there are still words left..
+                {
+
+                    final String next = st.nextToken();
+
+                    ///probability is the sum of alpha + prior probability of regular message + sum of probability of word being regular
+                    ///So we now add the probability of each word at every step
+                    counter = vocab.get(next);
+                    double pWord = counter.conditionalprob_regular;
+                    logPregularmsg += pWord;
+
+                }
+            }
+            in.close();
+        }
+    }
+
     
     // Listings of the two subdirectories (regular/ and spam/)
     private static File[] listing_regular = new File[0];
@@ -130,7 +170,7 @@ public class Bayespam {
             word = e.nextElement();
             counter  = vocab.get(word);
             System.out.println(word + " | in regular: " + counter.counter_regular +
-                    " in spam: " + counter.counter_spam + " conditional probability regular: " + counter.conditionalprob_regular + " conditional probability spam: " + counter.conditionalprob_spam);
+                    " in spam: " + counter.counter_spam + " ||| conditional probability regular: " + counter.conditionalprob_regular + " conditional probability spam: " + counter.conditionalprob_spam);
         }
     }
     
@@ -238,13 +278,13 @@ public class Bayespam {
 
        prior_spam = priorProbability(MessageType.SPAM);
        prior_regular = priorProbability(MessageType.NORMAL);
-       float nMessagesRegular =listing_regular.length;
+       float nMessagesRegular = listing_regular.length;
 	   float nMessagesSpam =  listing_spam.length;
 	   float nWordsSpam= 0;
 	   float nWordsRegular= 0;
        nWordsRegular = countWords(0, nWordsRegular);
        nWordsSpam = countWords(1, nWordsSpam);
-       calculateConditionalProbabilities(nWordsRegular, nWordsSpam); 
+       calculateConditionalProbabilities(nWordsRegular, nWordsSpam);
 
         // Print out the hash table
         printVocab();
