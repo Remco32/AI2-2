@@ -33,8 +33,8 @@ public class Bayespam {
     {
         int counter_spam    = 0;
         int counter_regular = 0;
-        float conditionalprob_spam = 0;
-        float conditionalprob_regular = 0;
+        double conditionalprob_spam = 0;
+        double conditionalprob_regular = 0;
         // Increase one of the counters by one
         public void incrementCounter(MessageType type) {
             if (type == MessageType.NORMAL) {
@@ -48,15 +48,15 @@ public class Bayespam {
         public void calculateProbability(float nWordsRegular, float nWordsSpam){
                   
         	      if (counter_regular == 0 && counter_spam > 0){
-        	    	  conditionalprob_regular = 1/ (nWordsRegular + nWordsSpam);
+        	    	  conditionalprob_regular = -1 * Math.log(1/ (nWordsRegular + nWordsSpam));
         	      }else {
-        	      conditionalprob_regular = counter_regular / nWordsRegular;
+        	      conditionalprob_regular = -1 * Math.log(counter_regular / nWordsRegular);
         	      }
         	      
         	      if (counter_spam == 0 && counter_regular > 0){
-        	    	  conditionalprob_spam = 1 / (nWordsRegular + nWordsSpam);
+        	    	  conditionalprob_spam = -1 * Math.log(1 / (nWordsRegular + nWordsSpam));
         	      }else {
-                  conditionalprob_spam = counter_spam /nWordsSpam;
+                  conditionalprob_spam = -1 * Math.log(counter_spam /nWordsSpam);
         	      }
               }    
   
@@ -70,14 +70,14 @@ public class Bayespam {
 
     
    ///calculates prior probability.
-    public static float priorProbability(MessageType type){ 
-     float i; 
+    public static double priorProbability(MessageType type){ 
+     double i; 
      float total = listing_regular.length + listing_spam.length;
-    if(type == MessageType.NORMAL) { 
-     i = (listing_regular.length) / total;  
+    if(type == MessageType.NORMAL) {
+     i = -1 * Math.log((listing_regular.length) / total);  
      }else{
      
-     i = (listing_spam.length) / total; 
+     i = -1 * Math.log((listing_spam.length) / total); 
      }
         
       return i; 
@@ -227,8 +227,8 @@ public class Bayespam {
     throws IOException
     {    
     	
-        float prior_spam = 0;
-        float prior_regular = 0;
+        double prior_spam = 0;
+        double prior_regular = 0;
         
         // Location of the directory (the path) taken from the cmd line (first arg)
         File dir_location = new File( args[0] );
@@ -270,10 +270,8 @@ public class Bayespam {
         System.out.println(" a nWordsSpam: " + nWordsSpam);
         System.out.println(" a nWordsRegular : " + nWordsRegular);
         
-       // priorProbability(); 
         // Now all students must continue from here:
 
-        // 5) Zero probabilities must be replaced by a small estimated value
         // 6) Bayes rule must be applied on new messages, followed by argmax classification
         // 7) Errors must be computed on the test set (FAR = false accept rate (misses), FRR = false reject rate (false alarms))
         // 8) Improve the code and the performance (speed, accuracy)
