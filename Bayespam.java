@@ -137,6 +137,10 @@ public class Bayespam {
     private static File[] listing_regular = new File[0];
     private static File[] listing_spam = new File[0];
 
+    /// Listings of the two subdirectories (regular/ and spam/) , in the TEST directory
+    private static File[] listing_regularTest = new File[0];
+    private static File[] listing_spamTest = new File[0];
+
     
    ///calculates prior probability.
     public static double priorProbability(MessageType type){ 
@@ -182,6 +186,7 @@ public class Bayespam {
 
 
     // List the regular and spam messages
+    ///Maakt van de 2 folders variabelen met alle berichten van elke catagorie
     private static void listDirs(File dir_location)
     {
         // List all files in the directory passed
@@ -196,6 +201,23 @@ public class Bayespam {
 
         listing_regular = dir_listing[0].listFiles();
         listing_spam    = dir_listing[1].listFiles();
+    }
+
+    ///Maakt van de 2 folders variabelen met alle berichten van elke catagorie
+    private static void listDirs2(File dir_location)
+    {
+        // List all files in the directory passed
+        File[] dir_listing = dir_location.listFiles();
+
+        // Check that there are 2 subdirectories
+        if ( dir_listing.length != 2 )
+        {
+            System.out.println( "- Error: specified directory does not contain two subdirectories.\n" );
+            Runtime.getRuntime().exit(0);
+        }
+
+        listing_regularTest = dir_listing[0].listFiles();
+        listing_spamTest    = dir_listing[1].listFiles();
     }
 
     
@@ -292,54 +314,62 @@ public class Bayespam {
 
     public static void main(String[] args)
 
-    throws IOException
-    {
+    throws IOException {
 
         double prior_spam = 0;
         double prior_regular = 0;
 
         // Location of the directory (the path) taken from the cmd line (first arg)
-        File dir_location = new File( args[0] );
+        File dir_location = new File(args[0]);
+
+        ///Look into the second argument, the second path with folders
+        File dir_locationTest = new File(args[1]);
 
 
         // Check if the cmd line arg is a directory
-        if ( !dir_location.isDirectory() )
-        {
-            System.out.println( "- Error: cmd line arg not a directory.\n" );
+        if (!dir_location.isDirectory()) {
+            System.out.println("- Error: cmd line arg not a directory.\n");
             Runtime.getRuntime().exit(0);
         }
 
         // Initialize the regular and spam lists
         listDirs(dir_location);
+        ///Initialize the TEST directory
+        listDirs2(dir_locationTest);
 
         // Read the e-mail messages
-       readMessages(MessageType.NORMAL);
-       readMessages(MessageType.SPAM);
+        readMessages(MessageType.NORMAL);
+        readMessages(MessageType.SPAM);
 
 
-       prior_spam = priorProbability(MessageType.SPAM);
-       prior_regular = priorProbability(MessageType.NORMAL);
-       float nMessagesRegular = listing_regular.length;
-	   float nMessagesSpam =  listing_spam.length;
-	   float nWordsSpam= 0;
-	   float nWordsRegular= 0;
-       nWordsRegular = countWords(0, nWordsRegular);
-       nWordsSpam = countWords(1, nWordsSpam);
-       calculateConditionalProbabilities(nWordsRegular, nWordsSpam);
+        prior_spam = priorProbability(MessageType.SPAM);
+        prior_regular = priorProbability(MessageType.NORMAL);
+        float nMessagesRegular = listing_regular.length;
+        float nMessagesSpam = listing_spam.length;
+        float nWordsSpam = 0;
+        float nWordsRegular = 0;
+        nWordsRegular = countWords(0, nWordsRegular);
+        nWordsSpam = countWords(1, nWordsSpam);
+        calculateConditionalProbabilities(nWordsRegular, nWordsSpam);
 
         // Print out the hash table
         printVocab();
 
-        
+
         System.out.println("total Regular: " + nMessagesRegular);
-        System.out.println("total Spam : " + nMessagesSpam ); 
+        System.out.println("total Spam : " + nMessagesSpam);
         System.out.println(" a priori spam : " + prior_spam);
-        System.out.println(" a priori regular : " + prior_regular);  
+        System.out.println(" a priori regular : " + prior_regular);
         System.out.println(" a nWordsSpam: " + nWordsSpam);
         System.out.println(" a nWordsRegular : " + nWordsRegular);
 
         System.out.println("probabilityRegular of message 1 : " + probabilityRegular());
         System.out.println("probabilitySpam of message 1 : " + probabilitySpam());
+        if (probabilityRegular() > probabilitySpam()) {
+            System.out.println("Message is not spam");
+        } else
+            System.out.println("Message is spam");
+
 
         // Now all students must continue from here:
 
