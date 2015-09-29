@@ -2,6 +2,7 @@ import java.io.*;
 import java.util.*;
 
 public class Bayespam {
+	
 	   // This defines the two types of messages we have.
     static enum MessageType
     {
@@ -32,7 +33,8 @@ public class Bayespam {
     {
         int counter_spam    = 0;
         int counter_regular = 0;
-
+        float conditionalprob_spam = 0;
+        float conditionalprob_regular = 0;
         // Increase one of the counters by one
         public void incrementCounter(MessageType type) {
             if (type == MessageType.NORMAL) {
@@ -40,9 +42,28 @@ public class Bayespam {
             } else {
                 ++counter_spam;
             }
+           
         }
+        
+        public void calculateProbability(float nWordsRegular, float nWordsSpam){
+                  
+        	      if (counter_regular == 0 && counter_spam > 0){
+        	    	  conditionalprob_regular = 1/ (nWordsRegular + nWordsSpam);
+        	      }else {
+        	      conditionalprob_regular = counter_regular / nWordsRegular;
+        	      }
+        	      
+        	      if (counter_spam == 0 && counter_regular > 0){
+        	    	  conditionalprob_spam = 1 / (nWordsRegular + nWordsSpam);
+        	      }else {
+                  conditionalprob_spam = counter_spam /nWordsSpam;
+        	      }
+              }    
+  
+        
+        
     }
-
+    
     // Listings of the two subdirectories (regular/ and spam/)
     private static File[] listing_regular = new File[0];
     private static File[] listing_spam = new File[0];
@@ -51,27 +72,23 @@ public class Bayespam {
    ///calculates prior probability.
     public static float priorProbability(MessageType type){ 
      float i; 
-     float total = listing_regular.length + listing_spam.length -2;
+     float total = listing_regular.length + listing_spam.length;
     if(type == MessageType.NORMAL) { 
-     i = (listing_regular.length -1) / total;  
+     i = (listing_regular.length) / total;  
      }else{
      
-     i = (listing_spam.length -1) / total; 
+     i = (listing_spam.length) / total; 
      }
         
       return i; 
     }
     
     
-    
-    //calculates conditional probabilities
-    
-    
     // A hash table for the vocabulary (word searching is very fast in a hash table)
     private static Hashtable <String, Multiple_Counter> vocab = new Hashtable <String, Multiple_Counter> ();
 
     
-    // Add a word to the vocabulary
+    // Add a word to the vocabulary and increments the total counter of 
     private static void addWord(String word, MessageType type)
     {
         Multiple_Counter counter = new Multiple_Counter();
@@ -83,9 +100,14 @@ public class Bayespam {
         if ( vocab.containsKey(word) ){                  // if word exists already in the vocabulary..
             counter = vocab.get(word);                  // get the counter from the hashtable
         }
-        counter.incrementCounter(type);                 // increase the counter appropriately
-
-        vocab.put(word, counter);                       // put the word with its counter into the hashtable
+        counter.incrementCounter(type);
+        // increase the counter appropriately and calculate the conditional probability 
+        
+        
+        
+        vocab.put(word, counter);
+        
+        // put the word with its counter into the hashtable
     }
 
 
@@ -118,19 +140,51 @@ public class Bayespam {
             
             word = e.nextElement();
             counter  = vocab.get(word);
-            
             System.out.println(word + " | in regular: " + counter.counter_regular +
-                    " in spam: " + counter.counter_spam);
+                    " in spam: " + counter.counter_spam + " conditional probability regular: " + counter.conditionalprob_regular + " conditional probability spam: " + counter.conditionalprob_spam);
+        }
+    }
+    
+    private static void calculateConditionalProbabilities(float nWordsRegular, float nWordsSpam)
+    {
+        Multiple_Counter counter = new Multiple_Counter();
+
+        for (Enumeration<String> e = vocab.keys() ; e.hasMoreElements() ;)
+        {   
+            String word;
+            
+            word = e.nextElement();
+            counter  = vocab.get(word);
+            counter.calculateProbability(nWordsRegular, nWordsSpam);
+
         }
     }
 
+    private static float countWords(int x, float nWords){
+            Multiple_Counter counter = new Multiple_Counter();
 
+            for (Enumeration<String> e = vocab.keys() ; e.hasMoreElements() ;)
+            {   
+                String word;
+                
+                word = e.nextElement();
+                counter  = vocab.get(word);
+                if (x == 0){
+                nWords = nWords + counter.counter_regular;
+                }else{
+                nWords = nWords + counter.counter_spam;
+                }
+                
+                
+            }
+    return nWords;    
+    }
+    
     // Read the words from messages and add them to your vocabulary. The boolean type determines whether the messages are regular or not  
     private static void readMessages(MessageType type)
     throws IOException
     {
-        File[] messages = new File[0];
-
+        File[] messages = new File[0]; 
         if (type == MessageType.NORMAL){
             messages = listing_regular;
         } else {
@@ -147,7 +201,7 @@ public class Bayespam {
             while ((line = in.readLine()) != null)                      // read a line
             {
                 StringTokenizer st = new StringTokenizer(line);         // parse it into words
-        
+                
                 while (st.hasMoreTokens())                  // while there are still words left..
                 {
 
@@ -156,24 +210,29 @@ public class Bayespam {
 
                     if(moreThanThreeLetters(next)) { /// More than 3 letters? //TODO still doesn't work
                     addWord(next, type);// add them to the vocabulary
+                   
                 }
                 }
+                
             }
-
+             
             in.close();
         }
-    }
+            }
 
 
    
     public static void main(String[] args)
  
     throws IOException
-    {
+    {    
+    	
+        float prior_spam = 0;
+        float prior_regular = 0;
+        
         // Location of the directory (the path) taken from the cmd line (first arg)
         File dir_location = new File( args[0] );
-            float prior_spam = 0;
-            float prior_regular = 0;
+     
 
         // Check if the cmd line arg is a directory
         if ( !dir_location.isDirectory() )
@@ -186,30 +245,34 @@ public class Bayespam {
         listDirs(dir_location);
 
         // Read the e-mail messages
-        readMessages(MessageType.NORMAL);
-        readMessages(MessageType.SPAM);
-
-        ///
-        ///priorProbability();
+       readMessages(MessageType.NORMAL);
+       readMessages(MessageType.SPAM);
+       
+       
+       prior_spam = priorProbability(MessageType.SPAM);
+       prior_regular = priorProbability(MessageType.NORMAL);
+       float nMessagesRegular =listing_regular.length;
+	   float nMessagesSpam =  listing_spam.length;
+	   float nWordsSpam= 0;
+	   float nWordsRegular= 0;
+       nWordsRegular = countWords(0, nWordsRegular);
+       nWordsSpam = countWords(1, nWordsSpam);
+       calculateConditionalProbabilities(nWordsRegular, nWordsSpam); 
 
         // Print out the hash table
         printVocab();
-        prior_spam = priorProbability(MessageType.SPAM);
-        prior_regular = priorProbability(MessageType.NORMAL);
-        float nMessagesRegular =listing_regular.length -1;
-	    float nMessagesSpam =  listing_spam.length -1;
+
         
         System.out.println("total Regular: "  +  nMessagesRegular);  
         System.out.println("total Spam : " + nMessagesSpam ); 
         System.out.println(" a priori spam : " + prior_spam);
         System.out.println(" a priori regular : " + prior_regular);  
+        System.out.println(" a nWordsSpam: " + nWordsSpam);
+        System.out.println(" a nWordsRegular : " + nWordsRegular);
+        
        // priorProbability(); 
         // Now all students must continue from here:
-        //
 
-        // 2) The vocabulary must be clean: punctuation and digits must be removed, case insensitive
-        // 3) Conditional probabilities must be computed for every word
-        // 4) A priori probabilities must be computed for every word
         // 5) Zero probabilities must be replaced by a small estimated value
         // 6) Bayes rule must be applied on new messages, followed by argmax classification
         // 7) Errors must be computed on the test set (FAR = false accept rate (misses), FRR = false reject rate (false alarms))
