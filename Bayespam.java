@@ -54,7 +54,7 @@ public class Bayespam {
 
     ///TODO give message as input
     ///Calculates the probability of a message being a regular email
-    public double probabilityRegular()
+    public static double probabilityRegular()
             throws IOException{
         File[] messages = new File[0];
         Multiple_Counter counter = new Multiple_Counter();
