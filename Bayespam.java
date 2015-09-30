@@ -47,9 +47,6 @@ public class Bayespam {
                 conditionalprob_spam = -1 * Math.log(counter_spam /nWordsSpam);
             }
         }
-
-
-
     }
 
     // Listings of the two subdirectories (regular/ and spam/)
@@ -60,7 +57,6 @@ public class Bayespam {
     private static File[] listing_regularTest = new File[0];
     private static File[] listing_spamTest = new File[0];
 
-    ///TODO give message as input
     ///Calculates the probability of the messages being a spam email, returns it in form of an array, 0 = regular, 1 = spam
     public static int[] ProbabilitySpam(MessageType type)
             throws IOException{
@@ -127,28 +123,28 @@ public class Bayespam {
                 if(isSpamArray[i] == 0){ /// Correct
                     regularCatagorisedCorrect += 1;
                 }
-                else { /// incorrect
+                if(isSpamArray[i] == 1){ /// incorrect
                     regularCatagorisedIncorrect += 1;
                 }
-            }else{
+            }if (type == MessageType.SPAM){
                 System.out.println(" Spammessage" + i + " : " + " Pspam :" + probabilitySpam[i] + " Preg :" + probabilityRegular[i] + " isSpam : " + isSpamArray[i]);
                 if(isSpamArray[i] == 1){ /// Correct
                     spamCatagorisedCorrect += 1;
                 }
-                else { /// incorrect
+                if(isSpamArray[i] == 0){ /// incorrect
                     spamCatagorisedIncorrect += 1;
                 }
             }
             in.close();
         }
-        buildMatrix(regularCatagorisedCorrect, regularCatagorisedIncorrect, spamCatagorisedCorrect, spamCatagorisedIncorrect);
+        buildMatrix(regularCatagorisedCorrect, regularCatagorisedIncorrect, spamCatagorisedCorrect, spamCatagorisedIncorrect); ///TODO Function gets called two times, splitting the matrix
         return isSpamArray;
     }
 
     public static void buildMatrix(int regularCatagorisedCorrect, int regularCatagorisedIncorrect,int spamCatagorisedCorrect,int spamCatagorisedIncorrect){
         System.out.println("\t Correctly categorized \t Incorrectly categorized");
         System.out.println("Regular mail \t " + regularCatagorisedCorrect + "\t" + regularCatagorisedIncorrect);
-        System.out.println("Spam mail \t " + spamCatagorisedCorrect + "\t" + spamCatagorisedIncorrect);
+        System.out.println("Spam mail \t \t " + spamCatagorisedCorrect + "\t" + spamCatagorisedIncorrect);
     }
 
     ///calculates prior probability.

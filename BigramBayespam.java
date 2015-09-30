@@ -170,16 +170,17 @@ public class BigramBayespam {
 
         word1 = formatter(word1);
         word2 = formatter(word2);
+        String bigram =  word1 + " " + word2;
 
-        if ( vocab.containsKey(word) ){                  // if word exists already in the vocabulary..
-            counter = vocab.get(word);                  // get the counter from the hashtable
+        if ( vocab.containsKey(bigram) ){                  // if word exists already in the vocabulary..
+            counter = vocab.get(bigram);                  // get the counter from the hashtable
         }
         counter.incrementCounter(type);
-        // increase the counter appropriately and calculate the conditional probability 
+        //increase the counter appropriately and calculate the conditional probability
 
 
 
-        vocab.put(word, counter);
+       vocab.put(bigram, counter);
 
         // put the word with its counter into the hashtable
     }
@@ -294,14 +295,16 @@ public class BigramBayespam {
             {
                 StringTokenizer st = new StringTokenizer(line);         // parse it into words
 
+                String next = st.nextToken();
                 while (st.hasMoreTokens())                  // while there are still words left..
                 {
 
-                    final String next = st.nextToken();
-                    final String nextNext = st.nextToken(st.nextToken());
+                    final String previous = next;
+                    next = st.nextToken();
+
                     //st.nextToken() =
 
-                    addBigram(next, type);// add them to the vocabulary
+                    addBigram(previous, next, type);// add them to the vocabulary
 
                 }
 
