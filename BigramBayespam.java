@@ -1,7 +1,9 @@
 import java.io.*;
-import java.util.*;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.StringTokenizer;
 
-public class Bayespam {
+public class BigramBayespam {
 
 	   // This defines the two types of messages we have.
     static enum MessageType
@@ -161,15 +163,13 @@ public class Bayespam {
     private static Hashtable <String, Multiple_Counter> vocab = new Hashtable <String, Multiple_Counter> ();
 
 
-    // Add a word to the vocabulary and increments the total counter of 
-    private static void addWord(String word, MessageType type)
+    /// Add two words to the vocabulary and increments the total counter
+    private static void addBigram(String word1, String word2, MessageType type)
     {
         Multiple_Counter counter = new Multiple_Counter();
-        ///Check if word is too short, less than 4 chars.
-        if(word.length() < 4){ //TODO Slips through single letter words and words that were reformatted.
-            return;
-        }
-        word = formatter(word);
+
+        word1 = formatter(word1);
+        word2 = formatter(word2);
 
         if ( vocab.containsKey(word) ){                  // if word exists already in the vocabulary..
             counter = vocab.get(word);                  // get the counter from the hashtable
@@ -298,9 +298,10 @@ public class Bayespam {
                 {
 
                     final String next = st.nextToken();
+                    final String nextNext = st.nextToken(st.nextToken());
                     //st.nextToken() =
 
-                    addWord(next, type);// add them to the vocabulary
+                    addBigram(next, type);// add them to the vocabulary
 
                 }
 
