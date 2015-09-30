@@ -74,6 +74,12 @@ public class Bayespam {
         double[] probabilityRegular = new double[messages.length];
         double[] probabilitySpam = new double[messages.length];
         int[] isSpamArray = new int[messages.length];
+
+        int regularCatagorisedCorrect = 0;
+        int regularCatagorisedIncorrect = 0;
+        int spamCatagorisedCorrect = 0;
+        int spamCatagorisedIncorrect = 0;
+
         ///TODO Calculate actual alpha value
         double alpha = 0.01;
 
@@ -97,7 +103,7 @@ public class Bayespam {
 
                     final String next = st.nextToken();
 
-                    ///probability is the sum of alpha + prior probability of regular message + sum of probability of word being regular
+                    ///probability is the sum of alpha + prior probability of regular message + sum of probability of word being spam
                     ///So we now add the probability of each word at every step
                     counter = vocab.get(next);
                     if (counter != null){
@@ -110,25 +116,40 @@ public class Bayespam {
             }
             probabilityRegular[i] = logPregularmsg;
             probabilitySpam[i] = logPspammsg;
-            if (probabilityRegular[i] > probabilitySpam[i]){
+            if (probabilityRegular[i] > probabilitySpam[i]){ /// is probably normal mail
                 isSpamArray[i] = 0;
-            }else{
+            }else{ /// is probably spam mail
                 isSpamArray[i] = 1;
             }
 
-            if (type ==MessageType.NORMAL){
-                System.out.println(" Regularmessage" + i + " : "  + " Pspam :" +probabilitySpam[i] + "Preg :" + probabilityRegular[i] + "isSpam : " + isSpamArray[i]);
+            if (type == MessageType.NORMAL){
+                System.out.println(" Regularmessage" + i + " : " + " Pspam :" + probabilitySpam[i] + " Preg :" + probabilityRegular[i] + " isSpam : " + isSpamArray[i]);
+                if(isSpamArray[i] == 0){ /// Correct
+                    regularCatagorisedCorrect += 1;
+                }
+                else { /// incorrect
+                    regularCatagorisedIncorrect += 1;
+                }
             }else{
-                System.out.println(" Spammessage" + i + " : "  + " Pspam :" +probabilitySpam[i] + "Preg :" + probabilityRegular[i] + "isSpam : " + isSpamArray[i]);
-
+                System.out.println(" Spammessage" + i + " : " + " Pspam :" + probabilitySpam[i] + " Preg :" + probabilityRegular[i] + " isSpam : " + isSpamArray[i]);
+                if(isSpamArray[i] == 1){ /// Correct
+                    spamCatagorisedCorrect += 1;
+                }
+                else { /// incorrect
+                    spamCatagorisedIncorrect += 1;
+                }
             }
             in.close();
         }
-
+        buildMatrix(regularCatagorisedCorrect, regularCatagorisedIncorrect, spamCatagorisedCorrect, spamCatagorisedIncorrect);
         return isSpamArray;
     }
 
-
+    public static void buildMatrix(int regularCatagorisedCorrect, int regularCatagorisedIncorrect,int spamCatagorisedCorrect,int spamCatagorisedIncorrect){
+        System.out.println("\t Correctly categorized \t Incorrectly categorized");
+        System.out.println("Regular mail \t " + regularCatagorisedCorrect + "\t" + regularCatagorisedIncorrect);
+        System.out.println("Spam mail \t " + spamCatagorisedCorrect + "\t" + spamCatagorisedIncorrect);
+    }
 
     ///calculates prior probability.
     public static double priorProbability(MessageType type){
