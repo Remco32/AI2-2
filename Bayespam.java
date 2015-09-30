@@ -3,7 +3,7 @@ import java.util.*;
 
 public class Bayespam {
 
-	   // This defines the two types of messages we have.
+    // This defines the two types of messages we have.
     static enum MessageType
     {
         NORMAL, SPAM
@@ -35,103 +35,22 @@ public class Bayespam {
 
         public void calculateProbability(float nWordsRegular, float nWordsSpam){
 
-        	      if (counter_regular == 0 && counter_spam > 0){
-        	    	  conditionalprob_regular = -1 * Math.log(1/ (nWordsRegular + nWordsSpam));
-        	      }else {
-        	      conditionalprob_regular = -1 * Math.log(counter_regular / nWordsRegular);
-        	      }
-
-        	      if (counter_spam == 0 && counter_regular > 0){
-        	    	  conditionalprob_spam = -1 * Math.log(1 / (nWordsRegular + nWordsSpam));
-        	      }else {
-                  conditionalprob_spam = -1 * Math.log(counter_spam /nWordsSpam);
-        	      }
-              }
-
-
-
-    }
-
-    ///TODO give message as input
-    ///Calculates the probability of a message being a regular email
-    public static double probabilityRegular()
-            throws IOException{
-        File[] messages = new File[0];
-        Multiple_Counter counter = new Multiple_Counter();
-
-        ///TODO Calculate actual alpha value
-        double alpha = 0.01;
-        ///Initialize as alpha and prior prob
-        double logPregularmsg = alpha + priorProbability(MessageType.NORMAL);;
-
-        for (int i = 0; i < messages.length; ++i)
-        {
-            FileInputStream i_s = new FileInputStream( messages[1] ); ///always the same msg
-            BufferedReader in = new BufferedReader(new InputStreamReader(i_s));
-            String line;
-            String word;
-
-            while ((line = in.readLine()) != null)                      // read a line
-            {
-                StringTokenizer st = new StringTokenizer(line);         // parse it into words
-
-                while (st.hasMoreTokens())                  // while there are still words left..
-                {
-
-                    final String next = st.nextToken();
-
-                    ///probability is the sum of alpha + prior probability of regular message + sum of probability of word being regular
-                    ///So we now add the probability of each word at every step
-                    counter = vocab.get(next);
-                    double pWord = counter.conditionalprob_regular;
-                    logPregularmsg += pWord;
-                }
+            if (counter_regular == 0 && counter_spam > 0){
+                conditionalprob_regular = -1 * Math.log(1/ (nWordsRegular + nWordsSpam));
+            }else {
+                conditionalprob_regular = -1 * Math.log(counter_regular / nWordsRegular);
             }
-            in.close();
-        }
-        return logPregularmsg;
-    }
 
-    ///TODO give message as input
-    ///Calculates the probability of a message being a regular email
-    public static double probabilitySpam()
-            throws IOException{
-        File[] messages = new File[0];
-        Multiple_Counter counter = new Multiple_Counter();
-
-        ///TODO Calculate actual alpha value
-        double alpha = 0.01;
-        ///Initialize as alpha and prior prob
-        double logPspammsg = alpha + priorProbability(MessageType.SPAM);;
-
-        for (int i = 0; i < messages.length; ++i)
-        {
-            FileInputStream i_s = new FileInputStream( messages[i] ); ///always the same msg
-            BufferedReader in = new BufferedReader(new InputStreamReader(i_s));
-            String line;
-            String word;
-
-            while ((line = in.readLine()) != null)                      // read a line
-            {
-                StringTokenizer st = new StringTokenizer(line);         // parse it into words
-
-                while (st.hasMoreTokens())                  // while there are still words left..
-                {
-
-                    final String next = st.nextToken();
-
-                    ///probability is the sum of alpha + prior probability of regular message + sum of probability of word being regular
-                    ///So we now add the probability of each word at every step
-                    counter = vocab.get(next);
-                    double pWord = counter.conditionalprob_spam;
-                    logPspammsg += pWord;
-                }
+            if (counter_spam == 0 && counter_regular > 0){
+                conditionalprob_spam = -1 * Math.log(1 / (nWordsRegular + nWordsSpam));
+            }else {
+                conditionalprob_spam = -1 * Math.log(counter_spam /nWordsSpam);
             }
-            in.close();
         }
-        return logPspammsg;
-    }
 
+
+
+    }
 
     // Listings of the two subdirectories (regular/ and spam/)
     private static File[] listing_regular = new File[0];
@@ -141,19 +60,88 @@ public class Bayespam {
     private static File[] listing_regularTest = new File[0];
     private static File[] listing_spamTest = new File[0];
 
+    ///TODO give message as input
+    ///Calculates the probability of the messages being a spam email, returns it in form of an array, 0 = regular, 1 = spam
+    public static int[] ProbabilitySpam(MessageType type)
+            throws IOException{
+        File[] messages = new File[0];
+        Multiple_Counter counter = new Multiple_Counter();
+        if (type == MessageType.NORMAL){
+            messages = listing_regularTest;
+        }else{
+            messages = listing_spamTest;
+        }
+        double[] probabilityRegular = new double[messages.length];
+        double[] probabilitySpam = new double[messages.length];
+        int[] isSpamArray = new int[messages.length];
+        ///TODO Calculate actual alpha value
+        double alpha = 0.01;
 
-   ///calculates prior probability.
+        for (int i = 0; i < messages.length; ++i)
+        {
+            FileInputStream i_s = new FileInputStream(messages[i]);
+            BufferedReader in = new BufferedReader(new InputStreamReader(i_s));
+            String line;
+            String word;
+
+            ///Initialize as alpha and prior prob
+            double logPregularmsg = alpha + priorProbability(MessageType.NORMAL);
+            double logPspammsg = alpha + priorProbability(MessageType.SPAM);
+
+            while ((line = in.readLine()) != null)                      // read a line
+            {
+                StringTokenizer st = new StringTokenizer(line);         // parse it into words
+
+                while (st.hasMoreTokens())                  // while there are still words left..
+                {
+
+                    final String next = st.nextToken();
+
+                    ///probability is the sum of alpha + prior probability of regular message + sum of probability of word being regular
+                    ///So we now add the probability of each word at every step
+                    counter = vocab.get(next);
+                    if (counter != null){
+                        double pWordreg = counter.conditionalprob_regular;
+                        double pWordspam = counter.conditionalprob_spam;
+                        logPregularmsg += pWordreg;
+                        logPspammsg += pWordspam;
+                    }
+                }
+            }
+            probabilityRegular[i] = logPregularmsg;
+            probabilitySpam[i] = logPspammsg;
+            if (probabilityRegular[i] > probabilitySpam[i]){
+                isSpamArray[i] = 0;
+            }else{
+                isSpamArray[i] = 1;
+            }
+
+            if (type ==MessageType.NORMAL){
+                System.out.println(" Regularmessage" + i + " : "  + " Pspam :" +probabilitySpam[i] + "Preg :" + probabilityRegular[i] + "isSpam : " + isSpamArray[i]);
+            }else{
+                System.out.println(" Spammessage" + i + " : "  + " Pspam :" +probabilitySpam[i] + "Preg :" + probabilityRegular[i] + "isSpam : " + isSpamArray[i]);
+
+            }
+            in.close();
+        }
+
+        return isSpamArray;
+    }
+
+
+
+    ///calculates prior probability.
     public static double priorProbability(MessageType type){
-     double i;
-     float total = listing_regular.length + listing_spam.length;
-    if(type == MessageType.NORMAL) {
-     i = -1 * Math.log((listing_regular.length) / total);
-     }else{
+        double i;
+        float total = listing_regular.length + listing_spam.length;
+        if(type == MessageType.NORMAL) {
+            i = -1 * Math.log((listing_regular.length) / total);
+        }else{
 
-     i = -1 * Math.log((listing_spam.length) / total);
-     }
+            i = -1 * Math.log((listing_spam.length) / total);
+        }
 
-      return i;
+        return i;
     }
 
 
@@ -253,28 +241,28 @@ public class Bayespam {
     }
 
     private static float countWords(int x, float nWords){
-            Multiple_Counter counter = new Multiple_Counter();
+        Multiple_Counter counter = new Multiple_Counter();
 
-            for (Enumeration<String> e = vocab.keys() ; e.hasMoreElements() ;)
-            {
-                String word;
+        for (Enumeration<String> e = vocab.keys() ; e.hasMoreElements() ;)
+        {
+            String word;
 
-                word = e.nextElement();
-                counter  = vocab.get(word);
-                if (x == 0){
+            word = e.nextElement();
+            counter  = vocab.get(word);
+            if (x == 0){
                 nWords = nWords + counter.counter_regular;
-                }else{
+            }else{
                 nWords = nWords + counter.counter_spam;
-                }
-
-
             }
-    return nWords;
+
+
+        }
+        return nWords;
     }
 
     // Read the words from messages and add them to your vocabulary. The boolean type determines whether the messages are regular or not  
     private static void readMessages(MessageType type)
-    throws IOException
+            throws IOException
     {
         File[] messages = new File[0];
         if (type == MessageType.NORMAL){
@@ -298,7 +286,6 @@ public class Bayespam {
                 {
 
                     final String next = st.nextToken();
-                    //st.nextToken() =
 
                     addWord(next, type);// add them to the vocabulary
 
@@ -308,16 +295,17 @@ public class Bayespam {
 
             in.close();
         }
-            }
+    }
 
 
 
     public static void main(String[] args)
 
-    throws IOException {
+            throws IOException {
 
         double prior_spam = 0;
         double prior_regular = 0;
+
 
         // Location of the directory (the path) taken from the cmd line (first arg)
         File dir_location = new File(args[0]);
@@ -363,12 +351,15 @@ public class Bayespam {
         System.out.println(" a nWordsSpam: " + nWordsSpam);
         System.out.println(" a nWordsRegular : " + nWordsRegular);
 
-        System.out.println("probabilityRegular of message 1 : " + probabilityRegular());
-        System.out.println("probabilitySpam of message 1 : " + probabilitySpam());
-        if (probabilityRegular() > probabilitySpam()) {
-            System.out.println("Message is not spam");
-        } else
-            System.out.println("Message is spam");
+
+
+        //Calculates the probability of message being Spam for Regular messages and spam messages in test case
+        int[] probOfSpamRegMessages = ProbabilitySpam(MessageType.NORMAL);
+        int[] probOfSpamSpamMessages = ProbabilitySpam(MessageType.SPAM);
+
+
+
+        //print array
 
 
         // Now all students must continue from here:
